@@ -2,12 +2,14 @@
 // header.php
 require_once 'config.php';
 
-// Initialize user and balance data
+// Initialize user and admin data
 $user = null;
+$admin = null;
 $balance = ['available_balance' => 0.00];
-$is_logged_in = isset($_SESSION['user_id']);
+$is_user_logged_in = isset($_SESSION['user_id']);
+$is_admin_logged_in = isset($_SESSION['admin_id']);
 
-if ($is_logged_in) {
+if ($is_user_logged_in) {
     try {
         // Fetch user data
         $user_id = $_SESSION['user_id'];
@@ -21,15 +23,41 @@ if ($is_logged_in) {
             $stmt->execute([$user_id]);
             $balance = $stmt->fetch(PDO::FETCH_ASSOC) ?: ['available_balance' => 0.00];
         } else {
-            // Invalidate session for non-active or invalid users
-            session_destroy();
+            // Invalidate user session for non-active or invalid users
+            unset($_SESSION['user_id']);
+            $is_user_logged_in = false;
             header('Location: login.php');
             exit;
         }
     } catch (PDOException $e) {
-        error_log('Header Error: ' . $e->getMessage());
-        session_destroy();
+        error_log('Header User Error: ' . $e->getMessage());
+        unset($_SESSION['user_id']);
+        $is_user_logged_in = false;
         header('Location: login.php');
+        exit;
+    }
+}
+
+if ($is_admin_logged_in) {
+    try {
+        // Fetch admin data
+        $admin_id = $_SESSION['admin_id'];
+        $stmt = $pdo->prepare("SELECT username, email, account_status FROM admins WHERE admin_id = ?");
+        $stmt->execute([$admin_id]);
+        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$admin || $admin['account_status'] !== 'active') {
+            // Invalidate admin session for non-active or invalid admins
+            unset($_SESSION['admin_id']);
+            $is_admin_logged_in = false;
+            header('Location: admin/login.php');
+            exit;
+        }
+    } catch (PDOException $e) {
+        error_log('Header Admin Error: ' . $e->getMessage());
+        unset($_SESSION['admin_id']);
+        $is_admin_logged_in = false;
+        header('Location: admin/login.php');
         exit;
     }
 }
@@ -37,9 +65,15 @@ if ($is_logged_in) {
 <header class="bg-white shadow-sm sticky top-0 z-50">
     <div class="container mx-auto px-4 py-3 flex items-center justify-between">
         <div class="flex items-center">
-            <a href="<?php echo $is_logged_in ? 'dashboard.php' : 'index.php'; ?>" class="text-2xl font-['Pacifico'] text-primary mr-8">CryptoMiner</a>
+            <a href="<?php echo $is_admin_logged_in ? 'admin/index.php' : ($is_user_logged_in ? 'dashboard.php' : 'index.php'); ?>" class="text-2xl font-['Pacifico'] text-primary mr-8">CryptoMiner</a>
             <nav class="hidden md:flex space-x-6">
-                <?php if ($is_logged_in): ?>
+                <?php if ($is_admin_logged_in): ?>
+                    <a href="index.php" class="text-<?php echo basename($_SERVER['PHP_SELF']) === 'index.php' && strpos($_SERVER['REQUEST_URI'], '/admin/') !== false ? 'primary font-medium' : 'gray-600 hover:text-primary'; ?> transition-colors">Admin Panel</a>
+                    <a href="users.php" class="text-<?php echo basename($_SERVER['PHP_SELF']) === 'users.php' ? 'primary font-medium' : 'gray-600 hover:text-primary'; ?> transition-colors">Users</a>
+                    <a href="deposit.php" class="text-<?php echo basename($_SERVER['PHP_SELF']) === 'deposit.php' ? 'primary font-medium' : 'gray-600 hover:text-primary'; ?> transition-colors">Deposits</a>
+                    <a href="withdraw.php" class="text-<?php echo basename($_SERVER['PHP_SELF']) === 'withdraw.php' ? 'primary font-medium' : 'gray-600 hover:text-primary'; ?> transition-colors">Withdrawals</a>
+                    <a href="transactions.php" class="text-<?php echo basename($_SERVER['PHP_SELF']) === 'transactions.php' ? 'primary font-medium' : 'gray-600 hover:text-primary'; ?> transition-colors">Transactions</a>
+                <?php elseif ($is_user_logged_in): ?>
                     <a href="dashboard.php" class="text-<?php echo basename($_SERVER['PHP_SELF']) === 'dashboard.php' ? 'primary font-medium' : 'gray-600 hover:text-primary'; ?> transition-colors">Dashboard</a>
                     <a href="miners.php" class="text-<?php echo basename($_SERVER['PHP_SELF']) === 'miners.php' ? 'primary font-medium' : 'gray-600 hover:text-primary'; ?> transition-colors">Miners</a>
                     <a href="referrals.php" class="text-<?php echo basename($_SERVER['PHP_SELF']) === 'referrals.php' ? 'primary font-medium' : 'gray-600 hover:text-primary'; ?> transition-colors">Referrals</a>
@@ -55,7 +89,7 @@ if ($is_logged_in) {
         </div>
         
         <div class="flex items-center space-x-4">
-            <?php if ($is_logged_in): ?>
+            <?php if ($is_user_logged_in): ?>
                 <div class="hidden md:flex items-center bg-blue-50 rounded-full px-4 py-1.5">
                     <span class="text-xs text-gray-500 mr-2">Balance:</span>
                     <span class="text-sm font-semibold text-primary earnings-counter">$<?php echo number_format($balance['available_balance'], 2); ?></span>
@@ -70,7 +104,7 @@ if ($is_logged_in) {
                             <p class="text-sm font-medium text-gray-700"><?php echo htmlspecialchars($user['full_name']); ?></p>
                             <p class="text-xs text-gray-500"><?php echo $user['phone_number'] ? htmlspecialchars($user['phone_number']) : 'No phone registered'; ?></p>
                         </div>
-                        <div class="w-5 h-5 flex items-center justify-center text-gray-400">
+                        <div class="w- conquista h-5 flex items-center justify-center text-gray-400">
                             <i class="ri-arrow-down-s-line"></i>
                         </div>
                     </button>
@@ -79,6 +113,27 @@ if ($is_logged_in) {
                         <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Profile</a>
                         <a href="settings.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
                         <a href="security.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Security</a>
+                        <div class="border-t border-gray-100"></div>
+                        <a href="logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100" role="menuitem">Sign out</a>
+                    </div>
+                </div>
+            <?php elseif ($is_admin_logged_in): ?>
+                <div class="relative">
+                    <button id="adminMenuButton" class="flex items-center space-x-2 focus:outline-none" aria-label="Admin menu" aria-haspopup="true" aria-expanded="false">
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            <span class="text-sm font-medium text-gray-600"><?php echo htmlspecialchars(substr($admin['username'], 0, 1)); ?></span>
+                        </div>
+                        <div class="hidden md:block text-left">
+                            <p class="text-sm font-medium text-gray-700"><?php echo htmlspecialchars($admin['username']); ?></p>
+                            <p class="text-xs text-gray-500">Admin</p>
+                        </div>
+                        <div class="w-5 h-5 flex items-center justify-center text-gray-400">
+                            <i class="ri-arrow-down-s-line"></i>
+                        </div>
+                    </button>
+                    
+                    <div id="adminMenu" class="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg py-1 hidden" role="menu" aria-labelledby="adminMenuButton">
+                        <a href="index.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Admin Panel</a>
                         <div class="border-t border-gray-100"></div>
                         <a href="logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100" role="menuitem">Sign out</a>
                     </div>
@@ -97,7 +152,14 @@ if ($is_logged_in) {
     <!-- Mobile menu -->
     <div id="mobileMenu" class="md:hidden bg-white border-t border-gray-100 hidden">
         <div class="px-4 py-3 space-y-3">
-            <?php if ($is_logged_in): ?>
+            <?php if ($is_admin_logged_in): ?>
+                <a href="admin/index.php" class="block py-2 text-<?php echo basename($_SERVER['PHP_SELF']) === 'index.php' && strpos($_SERVER['REQUEST_URI'], '/admin/') !== false ? 'primary font-medium' : 'gray-600'; ?>">Admin Panel</a>
+                <a href="admin/users.php" class="block py-2 text-<?php echo basename($_SERVER['PHP_SELF']) === 'users.php' ? 'primary font-medium' : 'gray-600'; ?>">Users</a>
+                <a href="admin/deposit.php" class="block py-2 text-<?php echo basename($_SERVER['PHP_SELF']) === 'deposit.php' ? 'primary font-medium' : 'gray-600'; ?>">Deposits</a>
+                <a href="admin/withdraw.php" class="block py-2 text-<?php echo basename($_SERVER['PHP_SELF']) === 'withdraw.php' ? 'primary font-medium' : 'gray-600'; ?>">Withdrawals</a>
+                <a href="admin/transactions.php" class="block py-2 text-<?php echo basename($_SERVER['PHP_SELF']) === 'transactions.php' ? 'primary font-medium' : 'gray-600'; ?>">Transactions</a>
+                <a href="admin/logout.php" class="block py-2 text-red-600">Sign out</a>
+            <?php elseif ($is_user_logged_in): ?>
                 <a href="dashboard.php" class="block py-2 text-<?php echo basename($_SERVER['PHP_SELF']) === 'dashboard.php' ? 'primary font-medium' : 'gray-600'; ?>">Dashboard</a>
                 <a href="miners.php" class="block py-2 text-<?php echo basename($_SERVER['PHP_SELF']) === 'miners.php' ? 'primary font-medium' : 'gray-600'; ?>">Miners</a>
                 <a href="referrals.php" class="block py-2 text-<?php echo basename($_SERVER['PHP_SELF']) === 'referrals.php' ? 'primary font-medium' : 'gray-600'; ?>">Referrals</a>
@@ -122,3 +184,27 @@ if ($is_logged_in) {
         </div>
     </div>
 </header>
+
+<script>
+    // Toggle mobile menu
+    document.getElementById('mobileMenuButton').addEventListener('click', function () {
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    // Toggle user menu
+    <?php if ($is_user_logged_in): ?>
+        document.getElementById('userMenuButton').addEventListener('click', function () {
+            const userMenu = document.getElementById('userMenu');
+            userMenu.classList.toggle('hidden');
+        });
+    <?php endif; ?>
+
+    // Toggle admin menu
+    <?php if ($is_admin_logged_in): ?>
+        document.getElementById('adminMenuButton').addEventListener('click', function () {
+            const adminMenu = document.getElementById('adminMenu');
+            adminMenu.classList.toggle('hidden');
+        });
+    <?php endif; ?>
+</script>

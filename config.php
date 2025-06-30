@@ -24,9 +24,9 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'db_erp');
-define('DB_USER', 'ruel'); // Replace with your MySQL username
-define('DB_PASS', 'ruel21'); // Replace with your MySQL password
+define('DB_NAME', 'cryp');
+define('DB_USER', 'root'); // Replace with your MySQL username
+define('DB_PASS', '2020'); // Replace with your MySQL password
 
 try {
     $pdo = new PDO(

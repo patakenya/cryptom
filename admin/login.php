@@ -2,6 +2,12 @@
 // admin/login.php
 require_once '../config.php';
 
+// Redirect if already logged in
+if (isset($_SESSION['admin_id'])) {
+    header('Location: dashboard.php');
+    exit;
+}
+
 // Initialize message
 $message = '';
 $type = 'error';
