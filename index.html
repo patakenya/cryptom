@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoMiner ERP</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#3b82f6',secondary:'#10b981'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .custom-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .custom-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e2e8f0;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #3b82f6;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        .custom-checkbox {
+            position: relative;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+        }
+        .custom-checkbox input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 4px;
+        }
+        .custom-checkbox input:checked ~ .checkmark {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+        .custom-checkbox input:checked ~ .checkmark:after {
+            display: block;
+        }
+        .custom-checkbox .checkmark:after {
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        .custom-radio {
+            position: relative;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+        }
+        .custom-radio input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .radiomark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 50%;
+        }
+        .custom-radio input:checked ~ .radiomark {
+            border-color: #3b82f6;
+        }
+        .radiomark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+        .custom-radio input:checked ~ .radiomark:after {
+            display: block;
+        }
+        .custom-radio .radiomark:after {
+            top: 4px;
+            left: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #3b82f6;
+        }
+        .range-slider {
+            width: 100%;
+            position: relative;
+            height: 8px;
+        }
+        .range-slider .track {
+            position: absolute;
+            width: 100%;
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+        .range-slider .track-fill {
+            position: absolute;
+            height: 8px;
+            background-color: #3b82f6;
+            border-radius: 4px;
+        }
+        .range-slider .thumb {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            top: -6px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .earnings-counter {
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center">
+                <a href="#" class="text-2xl font-['Pacifico'] text-primary mr-8">logo</a>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#" class="text-primary font-medium">Dashboard</a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">Miners</a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">Referrals</a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">Wallet</a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">Support</a>
+                </nav>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:flex items-center bg-blue-50 rounded-full px-4 py-1.5">
+                    <span class="text-xs text-gray-500 mr-2">Balance:</span>
+                    <span class="text-sm font-semibold text-primary earnings-counter">$1,245.78</span>
+                </div>
+                
+                <div class="relative">
+                    <button id="userMenuButton" class="flex items-center space-x-2 focus:outline-none">
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            <img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20man%20with%20short%20hair%2C%20neutral%20expression%2C%20business%20attire%2C%20high%20quality%20professional%20photo%2C%20linkedin%20profile%20picture%20style&width=100&height=100&seq=1&orientation=squarish" alt="User" class="w-full h-full object-cover">
+                        </div>
+                        <div class="hidden md:block text-left">
+                            <p class="text-sm font-medium text-gray-700">Michael Chen</p>
+                            <p class="text-xs text-gray-500">Premium User</p>
+                        </div>
+                        <div class="w-5 h-5 flex items-center justify-center text-gray-400">
+                            <i class="ri-arrow-down-s-line"></i>
+                        </div>
+                    </button>
+                    
+                    <div id="userMenu" class="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg py-1 hidden">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Security</a>
+                        <div class="border-t border-gray-100"></div>
+                        <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Sign out</a>
+                    </div>
+                </div>
+                
+                <button class="md:hidden w-10 h-10 flex items-center justify-center text-gray-500" id="mobileMenuButton">
+                    <i class="ri-menu-line text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="md:hidden bg-white border-t border-gray-100 hidden">
+            <div class="px-4 py-3 space-y-3">
+                <a href="#" class="block py-2 text-primary font-medium">Dashboard</a>
+                <a href="#" class="block py-2 text-gray-600">Miners</a>
+                <a href="#" class="block py-2 text-gray-600">Referrals</a>
+                <a href="#" class="block py-2 text-gray-600">Wallet</a>
+                <a href="#" class="block py-2 text-gray-600">Support</a>
+                <div class="flex items-center bg-blue-50 rounded-full px-4 py-2 mt-2">
+                    <span class="text-xs text-gray-500 mr-2">Balance:</span>
+                    <span class="text-sm font-semibold text-primary earnings-counter">$1,245.78</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6">
+        <!-- Welcome Section -->
+        <section class="mb-8">
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 opacity-90"></div>
+                    <div style="background-image: url('https://readdy.ai/api/search-image?query=abstract%20digital%20cryptocurrency%20mining%20concept%20with%20circuit%20board%20patterns%2C%20blue%20technology%20background%20with%20glowing%20nodes%20and%20connections%2C%20futuristic%20blockchain%20visualization%2C%20clean%20professional%20look%2C%20high%20resolution&width=1200&height=400&seq=2&orientation=landscape');" class="h-64 bg-cover bg-center"></div>
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="px-8 md:px-12 w-full">
+                            <h1 class="text-2xl md:text-3xl font-bold text-white mb-2">Welcome back, Michael!</h1>
+                            <p class="text-blue-100 mb-6 max-w-xl">Your mining operation is running smoothly. Check your daily earnings and manage your miners from your personalized dashboard.</p>
+                            <div class="flex flex-wrap gap-4">
+                                <a href="#miners" class="bg-white text-primary px-5 py-2.5 rounded-button font-medium hover:bg-blue-50 transition-colors whitespace-nowrap">Buy Miners</a>
+                                <a href="#wallet" class="bg-blue-700 text-white px-5 py-2.5 rounded-button font-medium hover:bg-blue-800 transition-colors whitespace-nowrap">Withdraw Earnings</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Cards -->
+        <section class="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-gray-500 text-sm font-medium">Total Investment</h3>
+                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i class="ri-funds-line text-primary"></i>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">$580.00</p>
+                <div class="flex items-center mt-2">
+                    <span class="text-green-500 text-sm flex items-center">
+                        <i class="ri-arrow-up-s-line"></i> 12.5%
+                    </span>
+                    <span class="text-xs text-gray-500 ml-2">from last month</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-gray-500 text-sm font-medium">Active Miners</h3>
+                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <i class="ri-cpu-line text-green-600"></i>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">7</p>
+                <div class="flex items-center mt-2">
+                    <span class="text-green-500 text-sm flex items-center">
+                        <i class="ri-arrow-up-s-line"></i> 3
+                    </span>
+                    <span class="text-xs text-gray-500 ml-2">new this week</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-gray-500 text-sm font-medium">Daily Earnings</h3>
+                    <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                        <i class="ri-coin-line text-yellow-600"></i>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-gray-900 earnings-counter">$52.20</p>
+                <div class="flex items-center mt-2">
+                    <span class="text-xs text-gray-500">Next update in <span id="updateTimer" class="font-medium">03:42:18</span></span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-gray-500 text-sm font-medium">Referral Earnings</h3>
+                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                        <i class="ri-user-add-line text-purple-600"></i>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">$87.50</p>
+                <div class="flex items-center mt-2">
+                    <span class="text-xs text-gray-500">2/3 referrals needed</span>
+                    <div class="w-24 h-2 bg-gray-200 rounded-full ml-2">
+                        <div class="w-2/3 h-2 bg-purple-500 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Earnings Chart -->
+        <section class="mb-8">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex flex-wrap items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">Earnings Overview</h2>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1.5 text-sm bg-blue-50 text-primary rounded-full">7 Days</button>
+                        <button class="px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 rounded-full">30 Days</button>
+                        <button class="px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 rounded-full">All Time</button>
+                    </div>
+                </div>
+                <div id="earningsChart" class="w-full h-80"></div>
+            </div>
+        </section>
+
+        <!-- Mining Packages -->
+        <section id="miners" class="mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">Mining Packages</h2>
+                <button class="text-primary text-sm font-medium flex items-center">
+                    <i class="ri-information-line mr-1"></i> How it works
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                <!-- Package 1 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:border-blue-200 transition-colors">
+                    <div class="bg-blue-50 p-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Starter Miner</h3>
+                        <div class="mt-2 flex items-baseline">
+                            <span class="text-2xl font-bold text-primary">$10</span>
+                            <span class="text-gray-500 text-sm ml-2">one-time</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                9% daily return
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                20 days duration
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                Total return: $18
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                Daily profit: $0.90
+                            </li>
+                        </ul>
+                        <button class="w-full bg-primary text-white py-2.5 rounded-button font-medium hover:bg-blue-600 transition-colors whitespace-nowrap">Purchase Now</button>
+                    </div>
+                </div>
+                
+                <!-- Package 2 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:border-blue-200 transition-colors">
+                    <div class="bg-blue-50 p-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Basic Miner</h3>
+                        <div class="mt-2 flex items-baseline">
+                            <span class="text-2xl font-bold text-primary">$25</span>
+                            <span class="text-gray-500 text-sm ml-2">one-time</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                9% daily return
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                20 days duration
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                Total return: $45
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                Daily profit: $2.25
+                            </li>
+                        </ul>
+                        <button class="w-full bg-primary text-white py-2.5 rounded-button font-medium hover:bg-blue-600 transition-colors whitespace-nowrap">Purchase Now</button>
+                    </div>
+                </div>
+                
+                <!-- Package 3 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-blue-200 ring-2 ring-blue-500 ring-opacity-20">
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-500 p-4 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-blue-700 text-white text-xs font-medium px-2 py-1 rounded-bl-lg">POPULAR</div>
+                        <h3 class="text-lg font-semibold text-white">Standard Miner</h3>
+                        <div class="mt-2 flex items-baseline">
+                            <span class="text-2xl font-bold text-white">$50</span>
+                            <span class="text-blue-100 text-sm ml-2">one-time</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                9% daily return
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                20 days duration
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                Total return: $90
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                Daily profit: $4.50
+                            </li>
+                        </ul>
+                        <button class="w-full bg-primary text-white py-2.5 rounded-button font-medium hover:bg-blue-600 transition-colors whitespace-nowrap">Purchase Now</button>
+                    </div>
+                </div>
+                
+                <!-- Package 4 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:border-blue-200 transition-colors">
+                    <div class="bg-blue-50 p-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Advanced Miner</h3>
+                        <div class="mt-2 flex items-baseline">
+                            <span class="text-2xl font-bold text-primary">$75</span>
+                            <span class="text-gray-500 text-sm ml-2">one-time</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                9% daily return
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                20 days duration
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                Total return: $135
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                Daily profit: $6.75
+                            </li>
+                        </ul>
+                        <button class="w-full bg-primary text-white py-2.5 rounded-button font-medium hover:bg-blue-600 transition-colors whitespace-nowrap">Purchase Now</button>
+                    </div>
+                </div>
+                
+                <!-- Package 5 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:border-blue-200 transition-colors">
+                    <div class="bg-blue-50 p-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Premium Miner</h3>
+                        <div class="mt-2 flex items-baseline">
+                            <span class="text-2xl font-bold text-primary">$120</span>
+                            <span class="text-gray-500 text-sm ml-2">one-time</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                9% daily return
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                20 days duration
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                Total return: $216
+                            </li>
+                            <li class="flex items-center text-sm text-gray-600">
+                                <i class="ri-check-line text-green-500 mr-2"></i>
+                                Daily profit: $10.80
+                            </li>
+                        </ul>
+                        <button class="w-full bg-primary text-white py-2.5 rounded-button font-medium hover:bg-blue-600 transition-colors whitespace-nowrap">Purchase Now</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Active Miners -->
+        <section class="mb-8">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6">Active Miners</h2>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Miner</th>
+                                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purchase Date</th>
+                                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Daily Profit</th>
+                                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                                <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                            <i class="ri-cpu-line text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">Standard Miner</div>
+                                            <div class="text-sm text-gray-500">$50.00</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">June 2, 2025</div>
+                                    <div class="text-xs text-gray-500">12 days ago</div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-green-600">+$4.50</div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div class="bg-primary h-2.5 rounded-full" style="width: 60%"></div>
+                                        </div>
+                                        <span class="ml-2 text-xs text-gray-500">12/20 days</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                            <i class="ri-cpu-line text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">Premium Miner</div>
+                                            <div class="text-sm text-gray-500">$120.00</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">May 28, 2025</div>
+                                    <div class="text-xs text-gray-500">17 days ago</div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-green-600">+$10.80</div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div class="bg-primary h-2.5 rounded-full" style="width: 85%"></div>
+                                        </div>
+                                        <span class="ml-2 text-xs text-gray-500">17/20 days</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                            <i class="ri-cpu-line text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">Basic Miner</div>
+                                            <div class="text-sm text-gray-500">$25.00</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">June 10, 2025</div>
+                                    <div class="text-xs text-gray-500">4 days ago</div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-green-600">+$2.25</div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div class="bg-primary h-2.5 rounded-full" style="width: 20%"></div>
+                                        </div>
+                                        <span class="ml-2 text-xs text-gray-500">4/20 days</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                            <i class="ri-cpu-line text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">Advanced Miner</div>
+                                            <div class="text-sm text-gray-500">$75.00</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">May 25, 2025</div>
+                                    <div class="text-xs text-gray-500">20 days ago</div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-500">+$0.00</div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div class="bg-gray-400 h-2.5 rounded-full" style="width: 100%"></div>
+                                        </div>
+                                        <span class="ml-2 text-xs text-gray-500">20/20 days</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Expired</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Referral System -->
+        <section id="referrals" class="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-sm p-6 h-full">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Referral Progress</h2>
+                    
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-600">Referral Requirement</span>
+                            <span class="text-sm font-medium text-primary">2/3</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-primary h-2.5 rounded-full" style="width: 66.67%"></div>
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500">You need 1 more referral to enable withdrawals</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">Your Referral Link</h3>
+                        <div class="flex">
+                            <input type="text" value="https://cryptominer.com/ref/michael85" readonly class="flex-1 border border-gray-300 rounded-l-button py-2 px-3 text-sm bg-gray-50 focus:outline-none">
+                            <button id="copyLinkBtn" class="bg-primary text-white px-4 rounded-r-button hover:bg-blue-600 transition-colors whitespace-nowrap">
+                                <i class="ri-file-copy-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">Share Your Link</h3>
+                        <div class="flex space-x-2">
+                            <button class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 hover:bg-blue-100 transition-colors">
+                                <i class="ri-facebook-fill"></i>
+                            </button>
+                            <button class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-400 hover:bg-blue-100 transition-colors">
+                                <i class="ri-twitter-fill"></i>
+                            </button>
+                            <button class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-green-500 hover:bg-blue-100 transition-colors">
+                                <i class="ri-whatsapp-fill"></i>
+                            </button>
+                            <button class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-700 hover:bg-blue-100 transition-colors">
+                                <i class="ri-telegram-fill"></i>
+                            </button>
+                            <button class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-red-500 hover:bg-blue-100 transition-colors">
+                                <i class="ri-mail-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">Scan QR Code</h3>
+                        <div class="bg-white p-2 border border-gray-200 rounded-lg inline-block">
+                            <img src="https://readdy.ai/api/search-image?query=simple%20QR%20code%20on%20white%20background%2C%20minimalist%20design%2C%20high%20contrast%20black%20and%20white&width=150&height=150&seq=3&orientation=squarish" alt="Referral QR Code" class="w-32 h-32">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">Your Referrals</h2>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Investment</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Your Commission</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                                <span class="text-indigo-600 font-medium">JS</span>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">James Smith</div>
+                                                <div class="text-sm text-gray-500">james.s@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">June 1, 2025</div>
+                                        <div class="text-xs text-gray-500">13 days ago</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">$175.00</div>
+                                        <div class="text-xs text-gray-500">3 miners</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-green-600">$17.50</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center mr-3">
+                                                <span class="text-pink-600 font-medium">EJ</span>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Emily Johnson</div>
+                                                <div class="text-sm text-gray-500">emily.j@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">May 25, 2025</div>
+                                        <div class="text-xs text-gray-500">20 days ago</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">$700.00</div>
+                                        <div class="text-xs text-gray-500">7 miners</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-green-600">$70.00</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-4 whitespace-nowrap" colspan="5">
+                                        <div class="flex items-center justify-center py-4">
+                                            <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-2">
+                                                <i class="ri-user-add-line text-primary text-xl"></i>
+                                            </div>
+                                        </div>
+                                        <p class="text-center text-gray-500 text-sm">Invite one more friend to enable withdrawals</p>
+                                        <div class="flex justify-center mt-3">
+                                            <button class="bg-primary text-white px-4 py-2 rounded-button text-sm hover:bg-blue-600 transition-colors whitespace-nowrap">
+                                                <i class="ri-share-line mr-1"></i> Share Referral Link
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Wallet Section -->
+        <section id="wallet" class="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Wallet Balance</h2>
+                    
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-400 rounded-lg p-5 text-white mb-4">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <p class="text-blue-100 text-sm mb-1">Available Balance</p>
+                                <h3 class="text-2xl font-bold">$1,245.78</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                                <i class="ri-wallet-3-line text-white"></i>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <div>
+                                <p class="text-blue-100 mb-1">Pending</p>
+                                <p class="font-medium">$87.50</p>
+                            </div>
+                            <div>
+                                <p class="text-blue-100 mb-1">Total Withdrawn</p>
+                                <p class="font-medium">$3,450.00</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-sm font-medium text-gray-700">Withdrawal Status</h3>
+                            <span class="text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded-full">1/3 Referrals</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 33.33%"></div>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500">You need 1 more referral to enable withdrawals</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">Quick Actions</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button class="bg-primary text-white py-2 rounded-button text-sm hover:bg-blue-600 transition-colors whitespace-nowrap">
+                                <i class="ri-arrow-down-line mr-1"></i> Deposit
+                            </button>
+                            <button class="bg-gray-100 text-gray-700 py-2 rounded-button text-sm hover:bg-gray-200 transition-colors whitespace-nowrap">
+                                <i class="ri-arrow-up-line mr-1"></i> Withdraw
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Withdrawal Request</h2>
+                    
+                    <form>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Amount (USD)</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500">$</span>
+                                </div>
+                                <input type="number" min="10" placeholder="0.00" class="block w-full pl-7 pr-12 py-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none text-sm">
+                                <div class="absolute inset-y-0 right-0 flex items-center">
+                                    <button type="button" class="h-full px-3 text-xs text-primary font-medium bg-blue-50 rounded-r-button whitespace-nowrap">MAX</button>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Minimum withdrawal: $10.00</p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                            <div class="relative">
+                                <select class="block w-full py-2 pl-3 pr-8 border border-gray-300 rounded-button appearance-none focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none text-sm">
+                                    <option>USDT (TRC20)</option>
+                                    <option>Bitcoin (BTC)</option>
+                                    <option>Ethereum (ETH)</option>
+                                    <option>MPESA</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                    <i class="ri-arrow-down-s-line text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Wallet Address</label>
+                            <input type="text" placeholder="Enter your wallet address" class="block w-full py-2 px-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none text-sm">
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-gray-200 text-gray-500 py-2.5 rounded-button font-medium cursor-not-allowed whitespace-nowrap">
+                            Request Withdrawal
+                        </button>
+                        <p class="mt-2 text-xs text-center text-yellow-600">Complete referral requirements to enable withdrawals</p>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex flex-wrap items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800">Transaction History</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1.5 text-sm bg-blue-50 text-primary rounded-full">All</button>
+                            <button class="px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 rounded-full">Deposits</button>
+                            <button class="px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 rounded-full">Earnings</button>
+                            <button class="px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 rounded-full">Withdrawals</button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                                <i class="ri-arrow-down-line text-green-600"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Deposit</div>
+                                                <div class="text-xs text-gray-500 mt-0.5">TX: 0x3a4...b7f2</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">June 12, 2025</div>
+                                        <div class="text-xs text-gray-500">10:23 AM</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-green-600">+$120.00</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center text-sm text-gray-900">
+                                            <i class="ri-coin-line mr-1.5 text-yellow-500"></i> USDT
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                                <i class="ri-coins-line text-blue-600"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Mining Earnings</div>
+                                                <div class="text-xs text-gray-500 mt-0.5">Daily Return</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">June 13, 2025</div>
+                                        <div class="text-xs text-gray-500">12:00 AM</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-green-600">+$52.20</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center text-sm text-gray-900">
+                                            <i class="ri-wallet-3-line mr-1.5 text-blue-500"></i> System
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                                <i class="ri-user-received-line text-purple-600"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Referral Bonus</div>
+                                                <div class="text-xs text-gray-500 mt-0.5">From: Emily J.</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">June 10, 2025</div>
+                                        <div class="text-xs text-gray-500">3:45 PM</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-green-600">+$70.00</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center text-sm text-gray-900">
+                                            <i class="ri-wallet-3-line mr-1.5 text-blue-500"></i> System
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                                <i class="ri-arrow-up-line text-red-600"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Withdrawal</div>
+                                                <div class="text-xs text-gray-500 mt-0.5">TX: 0x7b2...c9e4</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">June 5, 2025</div>
+                                        <div class="text-xs text-gray-500">2:12 PM</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-red-600">-$500.00</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center text-sm text-gray-900">
+                                            <i class="ri-coin-line mr-1.5 text-yellow-500"></i> USDT
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                                <i class="ri-arrow-up-line text-red-600"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">Withdrawal</div>
+                                                <div class="text-xs text-gray-500 mt-0.5">TX: Pending</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">June 14, 2025</div>
+                                        <div class="text-xs text-gray-500">9:30 AM</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-red-600">-$250.00</div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center text-sm text-gray-900">
+                                            <i class="ri-coin-line mr-1.5 text-yellow-500"></i> USDT
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex justify-center mt-6">
+                        <nav class="flex items-center">
+                            <button class="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100">
+                                <i class="ri-arrow-left-s-line"></i>
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white">1</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100">2</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100">3</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100">
+                                <i class="ri-arrow-right-s-line"></i>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Section -->
+        <section class="mb-8">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6">Security Settings</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-800 mb-1">Two-Factor Authentication</h3>
+                                <p class="text-sm text-gray-500 mb-4">Add an extra layer of security to your account</p>
+                            </div>
+                            <label class="custom-switch">
+                                <input type="checkbox" id="twoFactorToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div id="twoFactorSetup" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
+                            <p class="text-sm text-gray-600 mb-3">Scan this QR code with your authenticator app</p>
+                            <div class="flex justify-center mb-3">
+                                <img src="https://readdy.ai/api/search-image?query=QR%20code%20for%20two%20factor%20authentication%2C%20simple%20black%20and%20white%20design%2C%20security%20related%2C%20high%20contrast&width=150&height=150&seq=4&orientation=squarish" alt="2FA QR Code" class="w-32 h-32 border border-gray-200 rounded">
+                            </div>
+                            <div class="mb-3">
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Enter 6-digit code from your app</label>
+                                <input type="text" maxlength="6" class="block w-full py-2 px-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none text-sm">
+                            </div>
+                            <button class="w-full bg-primary text-white py-2 rounded-button text-sm hover:bg-blue-600 transition-colors whitespace-nowrap">Verify & Enable</button>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-800 mb-1">Login Activity</h3>
+                                <p class="text-sm text-gray-500 mb-4">Monitor where your account is being accessed</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                        <i class="ri-computer-line text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-800">Current Session</p>
+                                        <p class="text-xs text-gray-500">New York, USA • Chrome • June 14, 2025</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Active</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                                        <i class="ri-smartphone-line text-gray-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-800">Mobile Device</p>
+                                        <p class="text-xs text-gray-500">New York, USA • iOS App • June 13, 2025</p>
+                                    </div>
+                                </div>
+                                <button class="text-xs text-red-600 hover:text-red-700">Logout</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-1">Email Notifications</h3>
+                        <p class="text-sm text-gray-500 mb-4">Manage your email notification preferences</p>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm text-gray-700">Login Alerts</label>
+                                <label class="custom-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm text-gray-700">Withdrawal Confirmations</label>
+                                <label class="custom-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm text-gray-700">New Referral Notifications</label>
+                                <label class="custom-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm text-gray-700">Daily Earnings Reports</label>
+                                <label class="custom-switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm text-gray-700">Marketing & Promotions</label>
+                                <label class="custom-switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-1">Account Security</h3>
+                        <p class="text-sm text-gray-500 mb-4">Manage your account security settings</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <button class="flex items-center text-sm text-primary hover:text-blue-700 transition-colors">
+                                    <i class="ri-lock-password-line mr-2"></i> Change Password
+                                </button>
+                            </div>
+                            <div>
+                                <button class="flex items-center text-sm text-primary hover:text-blue-700 transition-colors">
+                                    <i class="ri-shield-keyhole-line mr-2"></i> Security Questions
+                                </button>
+                            </div>
+                            <div>
+                                <button class="flex items-center text-sm text-primary hover:text-blue-700 transition-colors">
+                                    <i class="ri-device-line mr-2"></i> Manage Devices
+                                </button>
+                            </div>
+                            <div>
+                                <button class="flex items-center text-sm text-red-600 hover:text-red-700 transition-colors">
+                                    <i class="ri-logout-box-r-line mr-2"></i> Logout from All Devices
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-8">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <a href="#" class="text-2xl font-['Pacifico'] text-primary mb-4 inline-block">logo</a>
+                    <p class="text-gray-600 text-sm mb-4">The most trusted cryptocurrency mining platform. Start earning passive income with our secure mining packages.</p>
+                    <div class="flex space-x-3">
+                        <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors">
+                            <i class="ri-facebook-fill"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors">
+                            <i class="ri-twitter-fill"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors">
+                            <i class="ri-instagram-fill"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors">
+                            <i class="ri-telegram-fill"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-gray-800 font-medium mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-primary text-sm">Dashboard</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary text-sm">Miners</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary text-sm">Referrals</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary text-sm">Wallet</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary text-sm">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-gray-800 font-medium mb-4">Legal</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-primary text-sm">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary text-sm">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary text-sm">Risk Disclosure</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary text-sm">KYC/AML Policy</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary text-sm">Cookie Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-gray-800 font-medium mb-4">Contact Us</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="ri-mail-line text-primary mt-1 mr-2"></i>
+                            <span class="text-gray-600 text-sm">support@cryptominer.com</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="ri-customer-service-2-line text-primary mt-1 mr-2"></i>
+                            <span class="text-gray-600 text-sm">24/7 Live Chat Support</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="ri-map-pin-line text-primary mt-1 mr-2"></i>
+                            <span class="text-gray-600 text-sm">88 Crypto Street, New York, NY 10001, USA</span>
+                        </li>
+                    </ul>
+                    
+                    <h3 class="text-gray-800 font-medium mt-6 mb-3">Payment Methods</h3>
+                    <div class="flex space-x-3">
+                        <i class="ri-bitcoin-fill text-2xl text-yellow-500"></i>
+                        <i class="ri-ethereum-fill text-2xl text-purple-600"></i>
+                        <i class="ri-mastercard-fill text-2xl text-red-500"></i>
+                        <i class="ri-visa-fill text-2xl text-blue-700"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-600 text-sm">© 2025 CryptoMiner. All rights reserved.</p>
+                <div class="mt-4 md:mt-0">
+                    <p class="text-gray-500 text-xs">Disclaimer: Cryptocurrency mining involves risk. Past performance is not indicative of future results.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script id="userMenuScript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const userMenuButton = document.getElementById('userMenuButton');
+            const userMenu = document.getElementById('userMenu');
+            
+            userMenuButton.addEventListener('click', function() {
+                userMenu.classList.toggle('hidden');
+            });
+            
+            document.addEventListener('click', function(event) {
+                if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+
+    <script id="mobileMenuScript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobileMenuButton');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+        });
+    </script>
+
+    <script id="earningsChartScript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartDom = document.getElementById('earningsChart');
+            const myChart = echarts.init(chartDom);
+            
+            const option = {
+                animation: false,
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderColor: '#e2e8f0',
+                    borderWidth: 1,
+                    textStyle: {
+                        color: '#1f2937'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '3%',
+                    bottom: '3%',
+                    top: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['Jun 7', 'Jun 8', 'Jun 9', 'Jun 10', 'Jun 11', 'Jun 12', 'Jun 13'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#e2e8f0'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#6b7280'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        show: false
+                    },
+                    axisLabel: {
+                        color: '#6b7280'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#e2e8f0'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'Daily Earnings',
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'none',
+                        lineStyle: {
+                            width: 3,
+                            color: 'rgba(87, 181, 231, 1)'
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                {
+                                    offset: 0,
+                                    color: 'rgba(87, 181, 231, 0.2)'
+                                },
+                                {
+                                    offset: 1,
+                                    color: 'rgba(87, 181, 231, 0.01)'
+                                }
+                            ])
+                        },
+                        data: [32.40, 38.70, 42.30, 47.80, 50.10, 52.20, 52.20]
+                    },
+                    {
+                        name: 'Referral Earnings',
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'none',
+                        lineStyle: {
+                            width: 3,
+                            color: 'rgba(141, 211, 199, 1)'
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                {
+                                    offset: 0,
+                                    color: 'rgba(141, 211, 199, 0.2)'
+                                },
+                                {
+                                    offset: 1,
+                                    color: 'rgba(141, 211, 199, 0.01)'
+                                }
+                            ])
+                        },
+                        data: [0, 0, 0, 70, 70, 70, 87.50]
+                    }
+                ]
+            };
+            
+            myChart.setOption(option);
+            
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        });
+    </script>
+
+    <script id="countdownTimerScript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const updateTimer = document.getElementById('updateTimer');
+            
+            function updateCountdown() {
+                let timeString = updateTimer.textContent;
+                let [hours, minutes, seconds] = timeString.split(':').map(Number);
+                
+                seconds--;
+                
+                if (seconds < 0) {
+                    seconds = 59;
+                    minutes--;
+                }
+                
+                if (minutes < 0) {
+                    minutes = 59;
+                    hours--;
+                }
+                
+                if (hours < 0) {
+                    hours = 3;
+                    minutes = 42;
+                    seconds = 18;
+                }
+                
+                updateTimer.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            setInterval(updateCountdown, 1000);
+        });
+    </script>
+
+    <script id="earningsCounterScript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const counters = document.querySelectorAll('.earnings-counter');
+            
+            counters.forEach(counter => {
+                const value = counter.textContent;
+                
+                // Add small random fluctuations to the earnings
+                setInterval(() => {
+                    const currentValue = parseFloat(counter.textContent.replace(/[^0-9.-]+/g, ''));
+                    const fluctuation = (Math.random() * 0.02) - 0.01; // -0.01 to +0.01
+                    const newValue = currentValue + fluctuation;
+                    
+                    if (counter.textContent.includes('$')) {
+                        counter.textContent = '$' + newValue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    } else {
+                        counter.textContent = newValue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    }
+                }, 3000);
+            });
+        });
+    </script>
+
+    <script id="copyLinkScript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const copyLinkBtn = document.getElementById('copyLinkBtn');
+            
+            copyLinkBtn.addEventListener('click', function() {
+                const referralLink = copyLinkBtn.previousElementSibling;
+                
+                referralLink.select();
+                referralLink.setSelectionRange(0, 99999);
+                
+                navigator.clipboard.writeText(referralLink.value);
+                
+                const originalIcon = copyLinkBtn.innerHTML;
+                copyLinkBtn.innerHTML = '<i class="ri-check-line"></i>';
+                
+                setTimeout(() => {
+                    copyLinkBtn.innerHTML = originalIcon;
+                }, 2000);
+            });
+        });
+    </script>
+
+    <script id="twoFactorToggleScript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const twoFactorToggle = document.getElementById('twoFactorToggle');
+            const twoFactorSetup = document.getElementById('twoFactorSetup');
+            
+            twoFactorToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    twoFactorSetup.classList.remove('hidden');
+                } else {
+                    twoFactorSetup.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
